@@ -1,9 +1,16 @@
 const express = require("express");
+const { conexionBD } = require( '../database/config' );
 
 class Server {
   constructor() {
+    this.usuariosPath = "/api/usuarios"
     this.app = express();
     this.port = process.env.PORT;
+    this.conectarBD();
+  }
+
+  async conectarBD() {
+    await conexionBD();
   }
 
   listen() {
