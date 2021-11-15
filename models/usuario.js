@@ -5,6 +5,10 @@ const UsuarioSchema = Schema({
     type: String, // Tipo de dato
     required: [true, "El nombre es obligatorio"], // required lanza un error en caso tal de que no se coloque el nombre
   },
+  apellido: {
+    type: String, // Tipo de dato
+    required: [true, "El apellido es obligatorio"], // required lanza un error en caso tal de que no se coloque el nombre
+  },
   correo: {
     type: String,
     required: [true, "El correo es obligatorio"],
@@ -12,23 +16,18 @@ const UsuarioSchema = Schema({
   },
   password: {
     type: String,
-    required: [true, "La contraseña es obligatorio"],
+    required: [true, "La contraseña es obligatoria"],
   },
   img: {
     type: String,
   },
-  rol: {
-    type: String,
-    require: true,
-    emun: ["ADMIN_ROLE", "USER_ROLE"], // Enumeración
+  playlist: {
+    type: [],
+    default: [], // Valor por defecto
   },
   estado: {
     type: Boolean,
     default: true, // Valor por defecto
-  },
-  google: {
-    type: Boolean,
-    default: false,
   },
 });
 

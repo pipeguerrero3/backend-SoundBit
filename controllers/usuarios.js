@@ -27,12 +27,12 @@ const usuariosGet = async (req = request, res = response) => {
 };
 
 const usuariosPost = async (req, res = response) => {
-  const { nombre, correo, password, rol } = req.body;
+  const { nombre, apellido, correo, password } = req.body;
   const usuario = new Usuario({
     nombre,
+    apellido,
     correo,
     password,
-    rol,
   });
 
   // Encriptando contraseña (hash)...
@@ -48,14 +48,14 @@ const usuariosPost = async (req, res = response) => {
   await usuario.save();
 
   res.json({
-    /* msg: "Post API - controlador", */
+    msg: "Usuario guardado correctamente",
     usuario,
   });
 };
 
 const usuariosPut = async (req, res = response) => {
   const { id } = req.params; // Se obtiene el parámetro id del endpoint de forma dinámica
-  const { _id, password, google, correo, ...resto } = req.body;
+  const { _id, password, correo, ...resto } = req.body;
 
   // TODO: validar contra base de datos
   if (password) {
@@ -66,12 +66,9 @@ const usuariosPut = async (req, res = response) => {
 
   const usuario = await Usuario.findByIdAndUpdate(id, resto);
 
-  res.json(usuario);
-};
-
-const usuariosPatch = (req, res = response) => {
   res.json({
-    msg: "Patch API - controlador",
+    msg: "Usuario actualizado correctamente",
+    usuario,
   });
 };
 
@@ -84,13 +81,15 @@ const usuariosDelete = async (req, res = response) => {
   // Forma recomendable: actualizando el estado a false para mantener integridad en la BD
   const usuario = await Usuario.findByIdAndUpdate(id, { estado: false });
 
-  res.json(usuario);
+  res.json({
+    msg: "Usuario eliminado",
+    usuario,
+  });
 };
 
 module.exports = {
   usuariosGet,
   usuariosPost,
   usuariosPut,
-  usuariosPatch,
   usuariosDelete,
 };
