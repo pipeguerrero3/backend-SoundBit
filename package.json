@@ -1,21 +1,14 @@
 {
-  "name": "backend-soundbit",
+  "name": "07-restserver",
   "version": "1.0.0",
-  "description": "Backend SoundBit",
-  "main": "app.js",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/pipeguerrero3/backend-SoundBit.git"
-  },
+  "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/pipeguerrero3/backend-SoundBit/issues"
-  },
-  "homepage": "https://github.com/pipeguerrero3/backend-SoundBit#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",

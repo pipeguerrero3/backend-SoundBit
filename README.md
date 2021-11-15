@@ -1,2 +1,3 @@
-# backend-SoundBit
-Backend SoundBit
+# Notas
+
+Usar ```npm install``` para reconstruir módulos de node.
