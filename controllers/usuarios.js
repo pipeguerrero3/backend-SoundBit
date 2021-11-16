@@ -1,95 +1,84 @@
-const { response, request } = require("express");
-const bcryptjs = require("bcryptjs");
+const { response, request } = require('express');
+const bcryptjs = require('bcryptjs');
 
-const Usuario = require("../models/usuario");
 
-const usuariosGet = async (req = request, res = response) => {
-  //const { q, nombre, apikey, page = 1, limit } = req.query;
+const Usuario = require('../models/usuario');
 
-  const { limite = 5, desde = 0 } = req.query;
-  const query = { estado: true };
 
-  /* const usuarios = await Usuario.find(query)
-    .skip(Number(desde)) // skip empiece a mostrar desde el numero que hay en desde
-    .limit(Number(limite)); // limit solo muestra la cantidad de registros que hay en limite
 
-  const total = await Usuario.countDocuments(query); */
+const usuariosGet = async(req = request, res = response) => {
 
-  const [total, usuarios] = await Promise.all([
-    Usuario.countDocuments(query),
-    Usuario.find(query).skip(Number(desde)).limit(Number(limite)),
-  ]);
+    const { limite = 5, desde = 0 } = req.query;
+    const query = { estado: true };
 
-  res.json({
-    total,
-    usuarios,
-  });
-};
+    const [ total, usuarios ] = await Promise.all([
+        Usuario.countDocuments(query),
+        Usuario.find(query)
+            .skip( Number( desde ) )
+            .limit(Number( limite ))
+    ]);
 
-const usuariosPost = async (req, res = response) => {
-  const { nombre, apellido, correo, password } = req.body;
-  const usuario = new Usuario({
-    nombre,
-    apellido,
-    correo,
-    password,
-  });
+    res.json({
+        total,
+        usuarios
+    });
+}
 
-  // Encriptando contraseña (hash)...
-  const salt = bcryptjs.genSaltSync(); // Vueltas que da el algoritmo para encriptar la contraseña. Entre más vueltas de, más robusto será.
-  usuario.password = bcryptjs.hashSync(password, salt); // Encriptando contraseña...
+const usuariosPost = async(req, res = response) => {
+    
+    const { nombre, correo, password, rol } = req.body;
+    const usuario = new Usuario({ nombre, correo, password, rol });
 
-  // En el body podría enviarse información innecesaria e incluso scripts que pueden afectar la seguridad de nuestra aplicación. Se recomienda destructurarlo y sacar los atributos necesarios solamente.
-  // En caso tal de que sean muchos atributos se puede destructurar usando el operador rest, lo que traerá únicamente los atributos del modelo.
-  // const { nombre, ...resto } = req.body;
-  // const usuario = new Usuario(resto);
-
-  // Guardando en BD...
-  await usuario.save();
-
-  res.json({
-    msg: "Usuario guardado correctamente",
-    usuario,
-  });
-};
-
-const usuariosPut = async (req, res = response) => {
-  const { id } = req.params; // Se obtiene el parámetro id del endpoint de forma dinámica
-  const { _id, password, correo, ...resto } = req.body;
-
-  // TODO: validar contra base de datos
-  if (password) {
-    // Encriptando contraseña
+    // Encriptar la contraseña
     const salt = bcryptjs.genSaltSync();
-    resto.password = bcryptjs.hashSync(password, salt);
-  }
+    usuario.password = bcryptjs.hashSync( password, salt );
 
-  const usuario = await Usuario.findByIdAndUpdate(id, resto);
+    // Guardar en BD
+    await usuario.save();
 
-  res.json({
-    msg: "Usuario actualizado correctamente",
-    usuario,
-  });
-};
+    res.json({
+        usuario
+    });
+}
 
-const usuariosDelete = async (req, res = response) => {
-  const { id } = req.params;
+const usuariosPut = async(req, res = response) => {
 
-  // Eliminado físico
-  // const usuario = await Usuario.findByIdAndDelete(id);
+    const { id } = req.params;
+    const { _id, password, google, correo, ...resto } = req.body;
 
-  // Forma recomendable: actualizando el estado a false para mantener integridad en la BD
-  const usuario = await Usuario.findByIdAndUpdate(id, { estado: false });
+    if ( password ) {
+        // Encriptar la contraseña
+        const salt = bcryptjs.genSaltSync();
+        resto.password = bcryptjs.hashSync( password, salt );
+    }
 
-  res.json({
-    msg: "Usuario eliminado",
-    usuario,
-  });
-};
+    const usuario = await Usuario.findByIdAndUpdate( id, resto );
+
+    res.json(usuario);
+}
+
+const usuariosPatch = (req, res = response) => {
+    res.json({
+        msg: 'patch API - usuariosPatch'
+    });
+}
+
+const usuariosDelete = async(req, res = response) => {
+
+    const { id } = req.params;
+    const usuario = await Usuario.findByIdAndUpdate( id, { estado: false } );
+
+    
+    res.json(usuario);
+}
+
+
+
 
 module.exports = {
-  usuariosGet,
-  usuariosPost,
-  usuariosPut,
-  usuariosDelete,
-};
+    usuariosGet,
+    usuariosPost,
+    usuariosPut,
+    usuariosPatch,
+    usuariosDelete,
+}
