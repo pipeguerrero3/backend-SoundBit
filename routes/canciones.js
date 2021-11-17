@@ -65,7 +65,7 @@ router.put(
 router.delete(
   "/:id",
   [
-    validarJWT,
+    // Borrar - privado - cualquiera con token válido
     check("id", "No es un id de Mongo válido").isMongoId(),
     check("id").custom(existeCancionPorId),
     validarCampos,
