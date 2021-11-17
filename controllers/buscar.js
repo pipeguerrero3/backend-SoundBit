@@ -1,112 +1,100 @@
-const { response } = require('express');
-const { ObjectId } = require('mongoose').Types;
+const { response } = require("express");
+const { ObjectId } = require("mongoose").Types;
 
-const { Usuario, Categoria, Producto } = require('../models');
+const { Usuario, Playlist, Canciones } = require("../models");
 
-const coleccionesPermitidas = [
-    'usuarios',
-    'categorias',
-    'productos',
-    'roles'
-];
+const coleccionesPermitidas = ["usuarios", "playlists", "canciones", "roles"];
 
-const buscarUsuarios = async( termino = '', res = response ) => {
+const buscarUsuarios = async (termino = "", res = response) => {
+  const esMongoID = ObjectId.isValid(termino); // TRUE
 
-    const esMongoID = ObjectId.isValid( termino ); // TRUE 
-
-    if ( esMongoID ) {
-        const usuario = await Usuario.findById(termino);
-        return res.json({
-            results: ( usuario ) ? [ usuario ] : []
-        });
-    }
-
-    const regex = new RegExp( termino, 'i' );
-    const usuarios = await Usuario.find({
-        $or: [{ nombre: regex }, { correo: regex }],
-        $and: [{ estado: true }]
+  if (esMongoID) {
+    const usuario = await Usuario.findById(termino);
+    return res.json({
+      results: usuario ? [usuario] : [],
     });
+  }
 
-    res.json({
-        results: usuarios
+  const regex = new RegExp(termino, "i");
+  const usuarios = await Usuario.find({
+    $or: [{ nombre: regex }, { correo: regex }],
+    $and: [{ estado: true }],
+  });
+
+  res.json({
+    results: usuarios,
+  });
+};
+
+const buscarPlaylists = async (termino = "", res = response) => {
+  const esMongoID = ObjectId.isValid(termino); // TRUE
+
+  if (esMongoID) {
+    const playlist = await Playlist.findById(termino);
+    return res.json({
+      results: playlist ? [playlist] : [],
     });
+  }
 
-}
+  const regex = new RegExp(termino, "i");
+  const playlists = await Playlist.find({ nombre: regex, estado: true });
 
-const buscarCategorias = async( termino = '', res = response ) => {
+  res.json({
+    results: playlists,
+  });
+};
 
-    const esMongoID = ObjectId.isValid( termino ); // TRUE 
+const buscarCanciones = async (termino = "", res = response) => {
+  const esMongoID = ObjectId.isValid(termino); // TRUE
 
-    if ( esMongoID ) {
-        const categoria = await Categoria.findById(termino);
-        return res.json({
-            results: ( categoria ) ? [ categoria ] : []
-        });
-    }
-
-    const regex = new RegExp( termino, 'i' );
-    const categorias = await Categoria.find({ nombre: regex, estado: true });
-
-    res.json({
-        results: categorias
+  if (esMongoID) {
+    const cancion = await Cancion.findById(termino).populate(
+      "playlist",
+      "nombre"
+    );
+    return res.json({
+      results: cancion ? [cancion] : [],
     });
+  }
 
-}
+  const regex = new RegExp(termino, "i");
+  const canciones = await Cancion.find({
+    nombre: regex,
+    estado: true,
+  }).populate("playlist", "nombre");
 
-const buscarProductos = async( termino = '', res = response ) => {
+  res.json({
+    results: canciones,
+  });
+};
 
-    const esMongoID = ObjectId.isValid( termino ); // TRUE 
+const buscar = (req, res = response) => {
+  const { coleccion, termino } = req.params;
 
-    if ( esMongoID ) {
-        const producto = await Producto.findById(termino)
-                            .populate('categoria','nombre');
-        return res.json({
-            results: ( producto ) ? [ producto ] : []
-        });
-    }
-
-    const regex = new RegExp( termino, 'i' );
-    const productos = await Producto.find({ nombre: regex, estado: true })
-                            .populate('categoria','nombre')
-
-    res.json({
-        results: productos
+  if (!coleccionesPermitidas.includes(coleccion)) {
+    return res.status(400).json({
+      msg: `Las colecciones permitidas son: ${coleccionesPermitidas}`,
     });
+  }
 
-}
+  switch (coleccion) {
+    case "usuarios":
+      buscarUsuarios(termino, res);
+      break;
+    case "playlist":
+      buscarPlaylists(termino, res);
+      break;
+    case "canciones":
+      buscarCanciones(termino, res);
+      break;
 
-
-const buscar = ( req, res = response ) => {
-    
-    const { coleccion, termino  } = req.params;
-
-    if ( !coleccionesPermitidas.includes( coleccion ) ) {
-        return res.status(400).json({
-            msg: `Las colecciones permitidas son: ${ coleccionesPermitidas }`
-        })
-    }
-
-    switch (coleccion) {
-        case 'usuarios':
-            buscarUsuarios(termino, res);
-        break;
-        case 'categorias':
-            buscarCategorias(termino, res);
-        break;
-        case 'productos':
-            buscarProductos(termino, res);
-        break;
-
-        default:
-            res.status(500).json({
-                msg: 'Se le olvido hacer esta búsquda'
-            })
-    }
-
-}
-
-
+    default:
+      res.status(500).json({
+        msg: "Busqueda no encontrada",
+      });
+  }
+};
 
 module.exports = {
-    buscar
-}
+  buscar,
+};
