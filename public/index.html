@@ -26,6 +26,10 @@
       data-logo_alignment="left"
     ></div>
 
+    <br />
+
+    <button id="google-sign-out">Sign out</button>
+
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <script>
@@ -53,9 +57,23 @@
 
         fetch(myRequest)
           .then((resp) => resp.json())
-          .then((data) => console.log(body))
+          .then((data) => {
+            console.log(body);
+            localStorage.setItem("email", data.usuario.correo);
+          })
           .catch(console.log);
       }
+
+      const button = document.getElementById("google-sign-out");
+      button.onclick = () => {
+        console.log(google.accounts.id);
+        google.accounts.id.disableAutoSelect();
+
+        google.accounts.id.revoke(localStorage.getItem('email'), done => {
+          localStorage.clear();
+          location.reload();
+        })
+      };
     </script>
   </body>
 </html>
