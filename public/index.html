@@ -2,21 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Google Signin</title>
+    <title>Google Sign-in</title>
   </head>
   <body>
-    <h1>Google Signin</h1>
+    <h1>Google Sign-in</h1>
     <hr />
 
     <div
       id="g_id_onload"
-      data-client_id="1023916028923-mnn067lcjn3itrr0lo8oj1s07kddgrcj.apps.googleusercontent.com"
-      data-callback="handleCredentialResponse"
+      data-client_id="504190236637-k788dr77eekv38u4m6m7frb4560u7lm3.apps.googleusercontent.com"
       data-auto_prompt="false"
-      data-auto_select="true"
+      data-callback="handleCredentialResponse"
     ></div>
-
     <div
       class="g_id_signin"
       data-type="standard"
@@ -27,40 +26,36 @@
       data-logo_alignment="left"
     ></div>
 
-    <br />
-
-    <button id="g_id_signout">Sign Out</button>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <script>
       function handleCredentialResponse(response) {
+        // Google token: ID_TOKEN
+        //console.log("id_token", response.credential);
+
         const body = { id_token: response.credential };
-        fetch("http://localhost:8080/api/auth/google", {
+        const url = window.location.hostname.includes("localhost")
+          ? "http://localhost:8080/api/auth/google"
+          : "https://soundbit-api-node.herokuapp.com/";
+
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        const myInit = {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: myHeaders,
+          mode: "cors",
+          cache: "default",
           body: JSON.stringify(body),
-        })
-          .then((r) => r.json())
-          .then((resp) => {
-            console.log(resp);
-            localStorage.setItem("email", resp.usuario.correo);
-          })
-          .catch(console.warn);
+        };
+
+        const myRequest = new Request(url, myInit);
+
+        fetch(myRequest)
+          .then((resp) => resp.json())
+          .then((data) => console.log(body))
+          .catch(console.log);
       }
-
-      const button = document.getElementById("g_id_signout");
-      button.onclick = async () => {
-        console.log(google.accounts.id);
-        google.accounts.id.disableAutoSelect();
-        google.accounts.id.revoke(localStorage.getItem("email"), (done) => {
-          console.log("consent revoked");
-          localStorage.clear();
-          location.reload();
-        });
-      };
     </script>
-
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
   </body>
 </html>

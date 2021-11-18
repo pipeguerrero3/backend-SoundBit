@@ -6,6 +6,8 @@ const dbConnection = async () => {
       process.env.MONGODB_CNN,
       {
         useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useCreateIndex: true,
       },
       (err, resp) => {
         if (err) throw err;
