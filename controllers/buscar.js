@@ -1,7 +1,7 @@
 const { response } = require("express");
 const { ObjectId } = require("mongoose").Types;
 
-const { Usuario, Playlist, Canciones } = require("../models");
+const { Usuario, Playlist, Cancion } = require("../models");
 
 const coleccionesPermitidas = ["usuarios", "playlists", "canciones", "roles"];
 
@@ -81,7 +81,7 @@ const buscar = (req, res = response) => {
     case "usuarios":
       buscarUsuarios(termino, res);
       break;
-    case "playlist":
+    case "playlists":
       buscarPlaylists(termino, res);
       break;
     case "canciones":
